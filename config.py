@@ -5,13 +5,16 @@ board_thickness = 5
 
 # block dimensions
 block_r_mm = 20
-block_base_h_mm = 20
+block_base_h_mm = 10
 block_hole_r_mm = 10
 block_hole_h_mm = board_thickness
 
 # distance between blocks
 block_pad_mm = 2
-cable_r_mm = 6
+cable_r_mm = 3
+connector_r_mm = 2.5
+connector_dist_mm = block_r_mm - connector_r_mm * 3
+
 
 # HEXAGONAL GRID
 block_r_pad_mm = block_r_mm + block_pad_mm
