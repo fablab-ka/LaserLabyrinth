@@ -9,8 +9,8 @@ from config import *
 # make some template shapes
 
 
-grid = circle(grid_r_mm, 6, angle_off)
-c_block = circle(block_r_mm, edge_count)
+grid = circle(grid_r_mm, 6, math.pi * 1/6)
+c_block = circle(block_r_mm, 6)
 c_small = circle(block_hole_r_mm, 256)
 
 

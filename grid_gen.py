@@ -8,7 +8,7 @@ from config import *
 
 # make some template shapes
 grid = rect(grid_w_mm, grid_h_mm)
-c_block = circle(block_r_mm,  edge_count,angle_off)
+r_block = rect(block_r_mm * 2, block_r_mm * 2)
 c_small = circle(block_hole_r_mm, 256)
 
 
@@ -41,7 +41,7 @@ def make_holes(grid, hole_shape):
 
 # make 2 layers with holes
 grid1 = make_holes(grid, c_small)
-grid2 = make_holes(grid, c_block)
+grid2 = make_holes(grid, r_block)
 
 write_svg("svg/grid_layer0.svg", grid)
 write_svg("svg/grid_layer1.svg", grid1)
