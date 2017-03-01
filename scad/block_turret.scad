@@ -1,3 +1,15 @@
+
+
+difference() {
+	cube(center = true, size = [30, 30, 50]);
+	translate(v = [0, 4, -4]) {
+		cube(center = true, size = [22, 30, 50]);
+	}
+}
+/***********************************************
+*********      SolidPython code:      **********
+************************************************
+ 
 __author__ = 'Mark Weinreuter'
 
 from solid.utils import *
@@ -40,3 +52,12 @@ base -= cut
 
 scad_render_to_file(t, "scad/block_turret.scad")
 scad_render_to_file(base, "scad/block_base.scad")
+
+print("done")
+
+r = cube([connector_dist_mm, 6, ])
+
+# "https://shop.heise.de/archiv/download/free/type/1/product/211926/
+ 
+ 
+************************************************/
