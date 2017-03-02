@@ -4,7 +4,7 @@ from solid.utils import *
 
 from config import *
 
-mirror_thickness = 4
+mirror_thickness = 8
 
 c = cylinder(block_r_mm, h=block_base_h_mm, center=True, segments=6)
 c1 = cylinder(block_hole_r_mm, h=block_hole_h_mm, center=True, segments=256)
@@ -30,11 +30,10 @@ base = c + down((block_base_h_mm + block_hole_h_mm) / 2)(c1)
 
 turret_w = 30
 turret_height = 50
-turret_th = 4
+turret_th = 10
 t = cube([turret_w, turret_w, turret_height], center=True)
 t_cutout = cube([turret_w - 2 * turret_th, turret_w, turret_height], center=True)
 t -= translate([0, turret_th, -turret_th])(t_cutout)
-
 
 base -= cut
 

@@ -4,12 +4,11 @@ import math
 board_thickness = 4
 
 # block dimensions
-block_r_mm = 20
+block_r_mm = 21 # the current gameboard hexagons have a radius of about 43mm
+
 block_base_h_mm = board_thickness *2
 block_hole_r_mm = 5
 block_hole_h_mm = board_thickness
-
-# log me in
 
 # viertel mm kleiner
 
@@ -31,11 +30,3 @@ hex_height_pad_mm = math.sqrt(block_r_pad_mm ** 2 - hex_side_len_half ** 2)
 hex_outer_edge_pad = 4 + 8 * block_pad_mm  # ~ 4 is needed for no overlap
 # Size of the hexagonal grid
 grid_r_mm = hex_block_count * hex_height_pad_mm + hex_outer_edge_pad
-
-# REGULAR GRID: (amount of holes)
-grid_w_count = 6
-grid_h_count = 6
-
-# size of the gameboard
-grid_w_mm = grid_w_count * (block_pad_mm + block_r_mm * 2) + block_pad_mm
-grid_h_mm = grid_h_count * (block_pad_mm + block_r_mm * 2) + block_pad_mm
