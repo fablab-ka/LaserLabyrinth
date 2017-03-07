@@ -1,0 +1,5 @@
+bin/*
+#!bin/*.hex
+cmake-build*/
+CMakeFiles
+flash_*
