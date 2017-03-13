@@ -1,9 +1,15 @@
 
 
 difference() {
-	cube(center = true, size = [30, 30, 50]);
-	translate(v = [0, 10, -10]) {
-		cube(center = true, size = [10, 30, 50]);
+	translate(v = [0, 0, 0]) {
+		rotate(a = [0, 0, 0]) {
+			cylinder($fn = 6, center = true, h = 8, r1 = 21, r2 = 21);
+		}
+	}
+	translate(v = [0, 0, 4.0000000000]) {
+		rotate(a = [0, 0, 90]) {
+			cube(center = true, size = [31.5000000000, 6, 8]);
+		}
 	}
 }
 /***********************************************
@@ -14,7 +20,7 @@ __author__ = 'Mark Weinreuter'
 
 from config import *
 
-cut = C(mirror_slit_width +.5, mirror_thickness+.5, block_base_h_mm)
+cut = C(mirror_slit_width, mirror_thickness, block_base_h_mm)
 cut.rz = 90
 cut.z = block_base_h_mm / 2
 base = make_base()

@@ -1,19 +1,18 @@
 __author__ = 'Mark Weinreuter'
 
-from solid.utils import *
-
 from config import *
 
-mirror_thickness = 8
+cut = C(mirror_slit_width +.5, mirror_thickness+.5, block_base_h_mm)
+cut.rz = 90
+cut.z = block_base_h_mm / 2
+base = make_base()
 
-c = cylinder(block_r_mm, h=block_base_h_mm, center=True, segments=6)
-c1 = cylinder(block_hole_r_mm, h=block_hole_h_mm, center=True, segments=256)
+mir_tile1 = base - cut
+cut.rz = 60
+mir_tile2 = base - cut
 
-cut = cube([block_r_mm * 3, mirror_thickness, block_base_h_mm], center=True)
-
-rotz = lambda z: rotate([0, 0, z])
-
-cut = rotz([0, 0, 90 + 60])(up(block_base_h_mm / 2)(cut))
+scad_render_to_file(mir_tile1, "scad/mirror_tile1.scad")
+scad_render_to_file(mir_tile2, "scad/mirror_tile2.scad")
 
 # holes_rots = (60, 60 + 180, 60 + 90, (60 + 90 + 180))
 # holes = []
@@ -23,7 +22,6 @@ cut = rotz([0, 0, 90 + 60])(up(block_base_h_mm / 2)(cut))
 
 
 cable_hole = cylinder(cable_r_mm, h=block_base_h_mm * 10, center=True)
-base = c + down((block_base_h_mm + block_hole_h_mm) / 2)(c1)
 # base -= cable_hole
 # for h in holes:
 #    base -= h
@@ -35,7 +33,4 @@ t = cube([turret_w, turret_w, turret_height], center=True)
 t_cutout = cube([turret_w - 2 * turret_th, turret_w, turret_height], center=True)
 t -= translate([0, turret_th, -turret_th])(t_cutout)
 
-base -= cut
-
 scad_render_to_file(t, "scad/block_turret.scad")
-scad_render_to_file(base, "scad/block_base.scad")

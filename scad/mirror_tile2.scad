@@ -1,9 +1,15 @@
 
 
 difference() {
-	cube(center = true, size = [30, 30, 50]);
-	translate(v = [0, 10, -10]) {
-		cube(center = true, size = [10, 30, 50]);
+	translate(v = [0, 0, 0]) {
+		rotate(a = [0, 0, 0]) {
+			cylinder($fn = 6, center = true, h = 8, r1 = 21, r2 = 21);
+		}
+	}
+	translate(v = [0, 0, 4.0000000000]) {
+		rotate(a = [0, 0, 60]) {
+			cube(center = true, size = [32.0000000000, 4.5000000000, 8]);
+		}
 	}
 }
 /***********************************************

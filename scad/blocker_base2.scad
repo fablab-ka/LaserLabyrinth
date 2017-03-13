@@ -1,9 +1,26 @@
 
 
 difference() {
-	cube(center = true, size = [30, 30, 50]);
-	translate(v = [0, 10, -10]) {
-		cube(center = true, size = [10, 30, 50]);
+	translate(v = [0, 0, 0]) {
+		rotate(a = [0, 0, 0]) {
+			union() {
+				translate(v = [0, 0, 0]) {
+					rotate(a = [0, 0, 0]) {
+						cylinder($fn = 6, center = true, h = 8, r1 = 21, r2 = 21);
+					}
+				}
+				translate(v = [0, 0, -6.0000000000]) {
+					rotate(a = [0, 0, 0]) {
+						cylinder($fn = 256, center = true, h = 4, r1 = 5, r2 = 5);
+					}
+				}
+			}
+		}
+	}
+	translate(v = [0, 0, 4.0000000000]) {
+		rotate(a = [0, 0, 60]) {
+			cube(center = true, size = [63, 8, 8]);
+		}
 	}
 }
 /***********************************************
@@ -14,7 +31,9 @@ __author__ = 'Mark Weinreuter'
 
 from config import *
 
-cut = C(mirror_slit_width +.5, mirror_thickness+.5, block_base_h_mm)
+mirror_thickness = 8
+
+cut = C(block_r_mm * 3, mirror_thickness, block_base_h_mm)
 cut.rz = 90
 cut.z = block_base_h_mm / 2
 base = make_base()
@@ -22,9 +41,6 @@ base = make_base()
 mir_tile1 = base - cut
 cut.rz = 60
 mir_tile2 = base - cut
-
-scad_render_to_file(mir_tile1, "scad/mirror_tile1.scad")
-scad_render_to_file(mir_tile2, "scad/mirror_tile2.scad")
 
 # holes_rots = (60, 60 + 180, 60 + 90, (60 + 90 + 180))
 # holes = []
@@ -45,7 +61,11 @@ t = cube([turret_w, turret_w, turret_height], center=True)
 t_cutout = cube([turret_w - 2 * turret_th, turret_w, turret_height], center=True)
 t -= translate([0, turret_th, -turret_th])(t_cutout)
 
+base = make_base()
+base -= cut
+
 scad_render_to_file(t, "scad/block_turret.scad")
+scad_render_to_file(base, "scad/blocker_base2.scad")
  
  
 ************************************************/
