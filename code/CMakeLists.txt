@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -8,7 +8,6 @@ SET(VERSION_MINOR 0)
 # HACK, for wierd rdynamic error
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
-
 
 # ========================== OS (user) specific configuration ==================================
 
@@ -52,9 +51,12 @@ SET(CHIP m88p)
 
 SET(CMAKE_C_FLAGS "-std=gnu99 -Wall -Os -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -funsigned-char -funsigned-bitfields -Wl,--gc-sections -Wl,--relax")
 SET(CMAKE_EXE_LINKER_FLAGS "-Os -Wl,--gc-sections -Wl,--relax")
+SET(CMAKE_C_COMPILER_INIT ${AVR_GCC})
 set(CMAKE_C_COMPILER ${AVR_GCC})
 set(CMAKE_CXX_COMPILER ${AVR_GXX})
-
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 #============== Top level configuration ====================
 
 # Top project directory
@@ -65,6 +67,8 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/")
 
 
 # ================ Projects go here =================
+#
+
 add_subdirectory(LaserStart)
 add_subdirectory(LaserBoth)
 

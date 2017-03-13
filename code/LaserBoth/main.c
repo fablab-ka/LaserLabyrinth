@@ -10,6 +10,8 @@
 // TODO: 100k für mehr sensitiviät
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
 #define PULSE_PRESCALE 256
 // Frequency / timer prescaler / pwm_width
 #define PULSE_DURATION F_CPU / PULSE_PRESCALE / 128
@@ -23,6 +25,12 @@
 volatile byte counter = 0;
 
 unsigned long millis();
+
+
+volatile uint adc_val = 0;
+uint ADC_THRESHOLD = 0;// TODO: value??
+bool isLow = true;
+uint changes = 0;
 
 
 uint ambient_light() {
@@ -48,6 +56,8 @@ uint ambient_light() {
     return ambi;
 }
 
+volatile uint adcs = 0;
+
 int main(void) {
 
     setAsInputBBit(BTN_PIN);
@@ -57,12 +67,12 @@ int main(void) {
 
     enableInterrupts();
     usiserial_init();
-    usiserial_sendBytes("Booted PulseLed...\n", 18);
+    //usiserial_sendBytes("Booted PulseLed...\n", 18);
 
 
 // should be between 50kHz and 200kHz
 #define ADC_TAKT F_CPU / 200000
-#define PWM_START 240
+#define PWM_START 40
 #pragma message STR(ADC_TAKT)
 
     adc_prescaler64();
@@ -70,10 +80,11 @@ int main(void) {
     adc_useADC_1();
     adc_enable();
 
+
     timer0_pwmPhaseCorrect();
     timer0_setAsOutput_A();
     timer0_setOnCompMatch_A();
-    timer0_setCompareValue_A(PWM_START);
+    timer0_setCompareValue_A(0);
     timer0_setPrescaler64();
 
 
@@ -83,135 +94,61 @@ int main(void) {
     timer1_setCompareValue_B(PWM_START);
     // to circumvent timer bug!!
     timer1_setOnCompMatch_A();
-    timer1_enablePWM_A();
-    timer1_setAsOutput_A();
+    //timer1_enablePWM_A();
+    //timer1_setAsOutput_A();
     timer1_setCompareValue_A(PWM_START);
-
     timer1_setPrescaler64();
     timer1_enableOverflowInterrupt();
 
 
     // measure ambient liegt
-    const uint AMBI = ambient_light();
+    const uint AMBI = 20;//ambient_light();
     usiserial_sendBytes("Ambi: ", 6);
-    usiserial_byteToHexAscii(AMBI);
-    usiserial_newline();
+    //usiserial_byteToHexAscii(AMBI);
+    //usiserial_newline();
 
+    ADC_THRESHOLD = AMBI + 30;
 
-    uint adc_val = 0;
+    // let the adc run free and trigger an interrupt
+    adc_enableAutoTriggerMode();
+    adc_autoTriggerFreeRunning();
+    adc_enableCompleteInterrupt();
+    adc_start();
     unsigned long last = 0, now = 0;
-    bool isLow = true;
-    uint changes = 0;
+
     uint diff = 0;
 
-    const uint  ADC_THRESHOLD = AMBI + 30;// TODO: value??
     while (1) {
 
 
         // is button pressed
         if (!pinB_isSet(BTN_PIN)) {
-            timer1_setCompareValue_B(0);
+            timer1_setCompareValue_B(128);
+            //usiserial_sendBytes("down\n", 5);
         } else {
-            timer1_setCompareValue_B(200);
+            timer1_setCompareValue_B(250);
         }
 
-
-
-        // read from the adc
-        adc_start();
-        adc_waitForConversionComplete();
-        adc_val = adc_valuesInRange(ADC_VALUE_16_BIT, ADC_PREC);
-
-        if (adc_val <= ADC_THRESHOLD && !isLow) {
-            changes++;
-            isLow = true;
-        } else if (adc_val > ADC_THRESHOLD && isLow) {
-            changes++;
-            isLow = false;
-        }
 
         now = millis();
         diff = (uint) (now - last);
         if (diff >= 1000) {
             usiserial_sendBytes("ADC2: ", 5);
-            usiserial_byteToHexAscii(adc_val);
+            usiserial_uintToHexAscii(adc_val);
             usiserial_newline();
+
+            usiserial_sendBytes("cs: ", 4);
+            usiserial_uintToHexAscii(adcs);
+            usiserial_newline();
+
 
             usiserial_sendBytes("Changes: ", 8);
-            usiserial_byteToHexAscii(changes);
+            usiserial_uintToHexAscii(changes);
             usiserial_newline();
 
             changes = 0;
             last = now;
         }
-
-    }
-
-
-    //setAsOutputDBit(7);
-    //portD_setBit(6);
-
-    timer0_pwmPhaseCorrect();
-    timer0_enableOverflowInterrupt();
-    timer0_normalMode();
-    //set prescaler =>  enable the timer
-    timer0_setPrescaler256();
-
-    // timer1 is a bit different
-    timer1_enablePWM_A();
-    //timer1_clearOC0AOnCompMatch_A();
-    //timer1_clearOC0BOnCompMatch_B();
-
-    //enable the output pins
-    timer1_setAsOutput_A();
-    timer1_setPrescaler256();
-    timer1_setCompareValue_B(128);
-
-
-
-    //do one dummy readout
-    adc_start();
-    adc_waitForConversionComplete();
-#if UART
-    uart_init_simple();
-    uart_puts("booted...\n");
-#endif
-    unsigned long int adc = 0;
-    adc_start();
-    byte lower = 0, higher = 0;
-
-
-    while (1) {
-
-
-        adc_start();
-        adc_waitForConversionComplete();
-
-        adc = ADC_VALUE_16_BIT;
-        if (adc <= 25 && !isLow) {
-            changes++;
-            isLow = true;
-        } else if (adc > 25 && isLow) {
-            changes++;
-            isLow = false;
-        }
-
-
-        now = millis();
-        diff = (now - last);
-        if (diff >= 500) {
-#if UART
-            uart_puts("ADC: ");
-            uart_uintToAscii(adc);
-            uart_newline();
-            uart_puts("F: ");
-            uart_uintToAscii(changes);
-            uart_newline();
-#endif
-            changes = 0;
-            last = now;
-        }
-
     }
 }
 
@@ -237,6 +174,18 @@ volatile unsigned long timer0_overflow_count = 0;
 volatile unsigned long timer0_millis = 0;
 static unsigned char timer0_fract = 0;
 
+SIGNAL(ADC_vect) {
+    // read from the adc
+    adcs++;
+    adc_val = adc_valuesInRange(ADC_VALUE_16_BIT, ADC_PREC);
+    if (adc_val <= ADC_THRESHOLD && !isLow) {
+        changes++;
+        isLow = true;
+    } else if (adc_val > ADC_THRESHOLD && isLow) {
+        changes++;
+        isLow = false;
+    }
+}
 
 SIGNAL(TIMER1_OVF_vect) {
     // copy these to local variables so they can be stored in registers
@@ -268,3 +217,5 @@ unsigned long millis() {
 
     return m;
 }
+
+#pragma clang diagnostic pop

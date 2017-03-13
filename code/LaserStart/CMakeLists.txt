@@ -1,5 +1,4 @@
 #==================== PROJECT CONFIGURATION ===========================================
-
 PROJECT(LaserStart)
 
 set(FILE_NAME ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME})

@@ -11,5 +11,6 @@ void usiserial_init();
 void usiserial_sendByte(byte data);
 void usiserial_sendBytes(byte *message, byte len);
 void usiserial_byteToHexAscii(byte value);
+void usiserial_uintToHexAscii(unsigned int value);
 #define usiserial_newline() usiserial_sendByte('\n')
 #endif //AVR_TOP_USI_UART_H

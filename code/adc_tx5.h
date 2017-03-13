@@ -115,7 +115,7 @@
 
 //if ADATE is set, these select the trigger source for an ADC conversion
 //see the data sheet for some more information about interupts and switching modes
-#define adc_autoTriggerFreeRunning()            ADCSRB = (ADCSRB & ~(1 << ADTS0 | 1 <<  ADTS1 | 1 << ADTS2))
+#define adc_autoTriggerFreeRunning()                ADCSRB = (ADCSRB & ~(1 << ADTS0 | 1 <<  ADTS1 | 1 << ADTS2))
 #define adc_autoTriggerAnalogComp()                ADCSRB = (ADCSRB & ~(              1 <<  ADTS1 | 1 << ADTS2)) | (1 << ADTS0)
 #define adc_autoTriggerExtInterrupt0()            ADCSRB = (ADCSRB & ~(1 << ADTS0              | 1 << ADTS2)) | (             1 << ADTS1)
 // TODO: add more!

@@ -47,6 +47,7 @@ ATTiny85 PB1/MISO/DO = Serial UART Tx -> connect to Rx of serial output device
 volatile static byte oldTCCR0A;
 volatile static byte oldTCCR0B;
 volatile static byte oldTCNT0;
+volatile static byte oldOCR0A;
 #endif
 
 // USISerial send state variable and accessors
@@ -81,11 +82,12 @@ void usiserial_sendByte(byte data) {
     oldTCCR0B = TCCR0B;
     oldTCCR0A = TCCR0A;
     oldTCNT0 = TCNT0;
+    oldOCR0A = OCR0A;
 #endif
 
     // Configure Timer0
-    TCCR0A |= 2 << WGM00;                      // CTC mode
-    TCCR0B |= CLOCKSELECT;                   // Set prescaler to clk or clk /8
+    TCCR0A = 2 << WGM00;                      // CTC mode
+    TCCR0B = CLOCKSELECT;                   // Set prescaler to clk or clk /8
     GTCCR |= 1 << PSR0;                     // Reset prescaler
     OCR0A = FULL_BIT_TICKS;                 // Trigger every full bit width
     TCNT0 = 0;                              // Count up from 0
@@ -110,8 +112,8 @@ ISR (USI_OVF_vect) {
         USISR = 1 << USIOIF |                   // Clear USI overflow interrupt flag
                 (16 - (1 + (STOPBITS)));          // Set USI counter to send last data bit and stop bits
     } else {
-        PORTB |= 1 << PB1;                    // Ensure output is high
-        DDRB |= (1 << PB1);                    // Configure USI_DO as output.
+        //PORTB |= 1 << PB1;                    // Ensure output is high
+        //DDRB |= (1 << PB1);                    // Configure USI_DO as output.
         USICR = 0;                            // Disable USI.
         USISR |= 1 << USIOIF;                   // clear interrupt flag
 
@@ -122,6 +124,7 @@ ISR (USI_OVF_vect) {
         // Note Arduino millis() and micros() will lose the time it took us to send a byte
         // Approximately 1ms at 9600 baud
         TCNT0 = oldTCNT0;
+        OCR0A = oldOCR0A;
 #endif
 
         usiserial_send_state = AVAILABLE;
@@ -137,8 +140,8 @@ void usiserial_sendBytes(byte *message, byte len){
 }
 
 void usiserial_init() {
-    //setAsOutputBBit(4);
-    //portB_setBit(4);
+    setAsOutputBBit(PB1);
+    portB_setBit(4);
 }
 
 
@@ -150,5 +153,30 @@ void usiserial_byteToHexAscii(byte value) {
     usiserial_sendByte(digit > 9 ? ('A' + (digit - 10)) : ('0' + digit));
 
     digit = value % 16;
+    usiserial_sendByte(digit > 9 ? ('A' + (digit - 10)) : ('0' + digit));
+}
+
+
+void usiserial_uintToHexAscii(unsigned int value) {
+    usiserial_sendByte('0');
+    usiserial_sendByte('x');
+
+    byte digit;
+    byte tmp;
+
+    //use the higher byte
+    tmp = ((value & 0xff00) >> 8);
+    digit = tmp / 16;
+    usiserial_sendByte(digit > 9 ? ('A' + (digit - 10)) : ('0' + digit));
+
+    digit = tmp % 16;
+    usiserial_sendByte(digit > 9 ? ('A' + (digit - 10)) : ('0' + digit));
+
+    //use the lower byte
+    tmp = (value & 0x00ff);
+    digit = tmp / 16;
+    usiserial_sendByte(digit > 9 ? ('A' + (digit - 10)) : ('0' + digit));
+
+    digit = tmp % 16;
     usiserial_sendByte(digit > 9 ? ('A' + (digit - 10)) : ('0' + digit));
 }
