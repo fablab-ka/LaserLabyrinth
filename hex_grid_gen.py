@@ -8,10 +8,12 @@ from config import *
 
 # make some template shapes
 
+import boxmaker
+grid = boxmaker.circle(grid_r_mm, 6, math.pi * 1/6)
+c_block = boxmaker.circle(block_r_mm, 6)
+c_small = boxmaker.circle(block_hole_r_mm, 256)
+c_outer = boxmaker.circle(block_hole_r_mm*2, 256)
 
-grid = circle(grid_r_mm, 6, math.pi * 1/6)
-c_block = circle(block_r_mm, 6)
-c_small = circle(block_hole_r_mm, 256)
 
 
 def make_comb_holes(grid, hole_shape):
@@ -48,10 +50,20 @@ def make_comb_holes(grid, hole_shape):
     return grid
 
 
+twa
+
+grid_side_len
+tbumps_w()
+
+
 # make 2 layers with holes
 grid1 = make_comb_holes(grid, c_small)
 grid2 = make_comb_holes(grid, c_block)
+grid3 = make_comb_holes(grid, c_outer)
 
 write_svg("svg/hex_grid_layer0.svg", grid)
 write_svg("svg/hex_grid_layer1.svg", grid1)
 write_svg("svg/hex_grid_layer2.svg", grid2)
+write_svg("svg/hex_grid_layer3.svg", grid3)
+
+

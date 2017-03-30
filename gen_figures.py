@@ -4,7 +4,10 @@ from config import *
 
 
 def ground_pipe():
-    pass
+    fit = 0.05
+    pipe = CY(block_hole_r_mm-fit, block_hole_h_mm, segments=256)
+    c = CY(cable_r_mm, block_hole_h_mm+2, segments=256)
+    scad_render_to_file(pipe-c, "scad/cable_pipe.scad")
 
 
 def tile_blocker(tile_blocker_h_mm=5):
@@ -18,11 +21,11 @@ def tile_blocker(tile_blocker_h_mm=5):
 
 def laser_start():
     ls = make_base(True)
-    t_h_mm = 30
-    l_r = 2
-    l_t_off = 5 + l_r
-    t_th = 2
-    t_r_mm = block_r_mm - 5
+    t_h_mm = 50
+    l_r = 3.25
+    l_b_off = t_h_mm/1.5
+    t_th = 1.2
+    t_r_mm = block_r_mm
     turret = CY(t_r_mm, t_h_mm, segments=6)
     c2 = CY(t_r_mm - t_th, t_h_mm + 2, segments=6)
     turret = W(turret - c2, d=t_h_mm)
@@ -32,7 +35,7 @@ def laser_start():
     l_hole.ry = 90
     l_hole.rz = 90
     # offset the cylinder
-    l_hole.z = turret.top - l_t_off
+    l_hole.z = turret.bottom + l_b_off
     l_hole.x = math.cos(90 / 180 * math.pi) * t_r_mm
     l_hole.y = math.sin(90 / 180 * math.pi) * t_r_mm
 
@@ -48,12 +51,15 @@ def laser_start():
     top_con.top = top.bottom
 
     top = W(top - topC, d=top_h_mm)
-    top = W((top + top_con) -CY(r1=1.2,h=20,segments=256)(), d=top_h_mm)
+    top = W((top + top_con) -CY(r1=2.5,h=20,segments=256)(), d=top_h_mm)
 
-    top.bottom = turret.top + 10
-    ls += (turret - l_hole) + (top() )
+    top.bottom = turret.top + 20
+    ls += (turret - l_hole)
 
     scad_render_to_file(ls(), "scad/laser_start.scad")
+    scad_render_to_file(top(), "scad/laser_start_top.scad")
+
 
 
 laser_start()
+ground_pipe()
