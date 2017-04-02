@@ -37,6 +37,7 @@
  * Set the OC0A as ouptput.
  */
 #define timer0_setAsOutput_A()                DDRB |= bit(TIM0_OCR0A_PIN)
+#define timer0_clearOutput_A()                DDRB &= ~bit(TIM0_OCR0A_PIN)
 
 /**
  * Set the OC0B=PD5 as output.

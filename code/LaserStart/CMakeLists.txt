@@ -18,12 +18,13 @@ set(PORT usb)
 
 #========================= SOURCE FILES IN HERE  ===========================================
 SET(SOURCE_FILES
-        ../usi_uart.c
-        ../LaserBoth/main.c)
+        ../LaserStart/main.c)
 
 #======================= COMPILING AND STUFF ===================================================
 
 MESSAGE("Compiling Project: ${PROJECT_NAME}")
+
 ADD_EXECUTABLE(${PROJECT_NAME} ${SOURCE_FILES})
+
 
 avr_compile(${PROJECT_NAME} ${FILE_NAME})

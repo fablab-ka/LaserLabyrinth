@@ -19,7 +19,8 @@ set(PORT usb)
 #========================= SOURCE FILES IN HERE  ===========================================
 SET(SOURCE_FILES
         ../usi_uart.c
-        main.c)
+        main.c
+        )
 
 #======================= COMPILING AND STUFF ===================================================
 

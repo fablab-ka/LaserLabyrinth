@@ -27,14 +27,14 @@
 
 #define AREF_PIN                            PB0
 
-#define ADC_MUX_0_PIN                       PC0
-#define ADC_MUX_1_PIN                       PC1
-#define ADC_MUX_2_PIN                       PC2
-#define ADC_MUX_3_PIN                       PC3
+#define ADC_MUX_0_PIN                       PB0
+#define ADC_MUX_1_PIN                       PB1
+#define ADC_MUX_2_PIN                       PB2
+#define ADC_MUX_3_PIN                       PB3
 /** Note: this is also the I2c-SDA-pin */
-#define ADC_MUX_4_PIN                       PC4
+#define ADC_MUX_4_PIN                       PB4
 /** Note: this is also the I2c-SCL-pin */
-#define ADC_MUX_5_PIN                       PC5
+#define ADC_MUX_5_PIN                       PB5
 
 #define adc_clearReferenceBits()                ADMUX &= ~bit3(REFS0, REFS1, REFS2)
 #define adc_setReferenceVCC()                    adc_clearReferenceBits()

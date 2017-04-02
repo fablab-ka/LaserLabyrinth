@@ -5,9 +5,13 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 SET(VERSION_MAJOR 1)
 SET(VERSION_MINOR 0)
 
+SET(CMAKE_SYSTEM_PROCESSOR arm)
+SET(CMAKE_CROSSCOMPILING 1)
+
 # HACK, for wierd rdynamic error
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+set(CMAKE_C_COMPILER_WORKS 1)
 
 # ========================== OS (user) specific configuration ==================================
 
@@ -69,6 +73,6 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/")
 # ================ Projects go here =================
 #
 
-add_subdirectory(LaserStart)
+#add_subdirectory(LaserStart)
 add_subdirectory(LaserBoth)
 
