@@ -18,7 +18,8 @@ set(PORT usb)
 
 #========================= SOURCE FILES IN HERE  ===========================================
 SET(SOURCE_FILES
-        ../LaserStart/main.c)
+        #../usi_uart.c
+        main.c)
 
 #======================= COMPILING AND STUFF ===================================================
 

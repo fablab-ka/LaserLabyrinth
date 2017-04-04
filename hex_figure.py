@@ -1,48 +1,40 @@
 import math
 
+from laserbox import *
+
+from config import figure_height_mm, figure_r_mm
+
 __author__ = 'Mark Weinreuter'
 
-from boxmaker import *
-import Polygon
-
-Polygon.setTolerance(.01)
-r = 21.1
-ground = Hexagon(r)
+ground = Ngon(6, figure_r_mm)
 g_height = ground.height
 b_th = 3
+# the side boards touch on the inner edge
+# => calc the inner radius (radius of the 6gon where the height is reduced by the board thickness)
 r_inner = (ground.height - b_th) / math.cos(math.pi / 6)
-inner = Hexagon(r_inner)
+inner = Ngon(6, r_inner)
 
 sl_inner = inner.side
 bump_w = sl_inner / 2
-print(r, ground.height, r_inner, inner.height)
+print(figure_r_mm, ground.height, r_inner, inner.height)
 # some wierd shit if I do this in a list/loop???
-b1 = rect(bump_w, b_th)
-b2 = rect(bump_w, b_th)
-b3 = rect(bump_w, b_th)
-b4 = rect(bump_w, b_th)
-b5 = rect(bump_w, b_th)
-b6 = rect(bump_w, b_th)
-for i, b in enumerate([b1, b2, b3, b4, b5, b6]):
-    ground.align_on_side(b, i, height_fac=-1)
+cut = Poly()
+tab = tbumps_w(2, b_th + 2, b_th, wo=1.5)
+for i in range(6):
+    b = ground.align_on_side(Poly(tab.to_polygon()), i, height_fac=-1)
+    cut += b
 
-ground -= b1
-ground -= b2
-ground -= b3
-ground -= b4
-ground -= b5
-ground -= b6
+ground -= cut
 
 write_svg("svg/g_plain.svg", ground)
 
-
-h_mm = 50
 wiggle = .05
 r_laser = 4
 
 # Side board with bumps at top/bottom an laser hole
-bump = rect(bump_w - wiggle, b_th)
-side_board = rect(sl_inner - .1, h_mm)  # .1 to add "some space" maybe remove?
+
+bump = tbumps_w(2, b_th + 2, b_th, wo=1.5 + wiggle)  # rect(bump_w - wiggle, b_th)
+side_board = rect(sl_inner - .1, figure_height_mm)  # .1 to add "some space" maybe remove?
 
 bump.back = side_board.front
 side_board += bump
@@ -75,7 +67,7 @@ inner_board -= hole_ib
 write_svg("svg/inner_board.svg", inner_board)
 
 # Ground plate with holes for power supply
-hole_ib.position = rotate_point(10,0,math.pi/6)
+hole_ib.position = rotate_point(10, 0, math.pi / 6)
 g_power = ground - hole_ib
 
 r_bolt = 3
@@ -83,8 +75,25 @@ g_power -= circle(r_bolt + wiggle)
 write_svg("svg/g_power.svg", g_power)
 
 # Mirror slits in 0 and 30°
-mirror_slit = rect(24, .8)
+mirror_slit = rect(24, .75)
 g_mirror1 = ground - mirror_slit
 mirror_slit.rotate(math.pi / 6)
 g_mirror2 = ground - mirror_slit
 write_svg("svg/g_mir_both_dirs.svg", [g_mirror1, g_mirror2])
+
+# dual mirror dim: 30x41x1
+dualmir_slit = rect(30 + wiggle, 1, wiggle)
+g_dual_mirror1 = ground - dualmir_slit
+dualmir_slit.rotate(math.pi / 6)
+g_dual_mirror2 = ground - mirror_slit
+write_svg("svg/g_dual_mir_both_dirs.svg", [g_dual_mirror1, g_dual_mirror2])
+
+# placeholder
+r_middle = figure_r_mm - b_th * 2
+r_small = figure_r_mm - b_th * 3
+con_hole = rect(b_th, b_th, wiggle)
+g_ph1 = ground - con_hole
+g_ph2 = Ngon(6, r_middle) - con_hole
+g_ph3 = Ngon(6, r_small) - con_hole
+con = rect(b_th, 5 * b_th)
+write_svg("svg/place_holder.svg", [g_ph1, g_ph2, g_ph3, con])

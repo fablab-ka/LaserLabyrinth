@@ -133,11 +133,11 @@ int main(void) {
         now = millis();
         diff = (uint) (now - last);
         if (diff >= 1000) {
-            usiserial_sendBytes("ADC2: ", 5);
+            usiserial_sendBytes("ADC: ", 5);
             usiserial_uintToHexAscii(adc_val);
             usiserial_newline();
 
-            usiserial_sendBytes("cs: ", 4);
+            usiserial_sendBytes("#a: ", 4);
             usiserial_uintToHexAscii(adcs);
             usiserial_newline();
 
