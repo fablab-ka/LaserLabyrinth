@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 from laserbox import *
+from laserbox.export import to_openscad
 
 from config import *
 
@@ -7,7 +8,10 @@ __author__ = 'Mark Weinreuter'
 
 # make some template shapes
 
-grid = Ngon(6, grid_r_mm, math.pi * 1 / 6)
+g_extra = 10
+grid_top = Ngon(6, grid_r_mm, math.pi * 1 / 6)
+grid_middle = Ngon(6, grid_r_mm + g_extra, math.pi * 1 / 6)
+grid_bottom = Ngon(6, grid_r_mm + g_extra * 2, math.pi * 1 / 6)
 c_block = circle(figure_r_mm, 6)
 c_small = circle(grid_hole_r_mm, 54)
 c_outer = circle(grid_hole_r_mm * 2, 64)
@@ -49,31 +53,51 @@ def make_comb_holes(grid, hole_shape):
 
 # Add tabs for the outer walls
 # height of the grid 6gon - the thickness is the new height
-r_inner = (grid.height - board_thickness) / math.cos(math.pi / 6)
-dummyGrid = Ngon(6, r_inner)
+r_inner = (grid_top.height - board_thickness) / math.cos(math.pi / 6)
+dummyGrid = Ngon(6, r_inner, math.pi * 1 / 6)
 
 wall_h_mm = 80
 side = rect(dummyGrid.side, wall_h_mm)
-n, w = mm_to_bumps(grid.side - 10, 10)
+n, w = mm_to_bumps(grid_top.side - 10, 10)
 bumps = tbumps_w(n, w, board_thickness * 3)
 bumps.front = side.back
 side += bumps
 write_svg("svg/hg_wall.svg", side)
 
-cut = Poly()
+
+
+cut_double = Poly()
+cut2 = Poly()
 for i in range(1, 7):
     # to fix weird edge cases, cut off bigger chucks but only half of them!
-    b2 = grid.align_on_side(tbumps_w(n, w, board_thickness * 2), i, height_fac=0)
-    cut += b2
+    b1 = grid_top.align_on_side(tbumps_w(n, w, board_thickness), i, height_fac=-1)
+    b_double = grid_top.align_on_side(tbumps_w(n, w, board_thickness * 2), i, height_fac=0)
+    cut_double += b_double
+    cut2 += b1
 
-grid -= cut
-
+grid_top -= cut_double
+grid_middle -= cut2
+grid_bottom -= cut2
 # make 2 layers with holes
-grid1 = make_comb_holes(grid, c_small)
-grid2 = make_comb_holes(grid, c_block)
-grid3 = make_comb_holes(grid, c_outer)
+final_grid_middle = make_comb_holes(grid_middle, c_small)
+final_grid_top = make_comb_holes(grid_top, c_block)
+#grid3 = make_comb_holes(grid, c_outer)
 
-write_svg("svg/hex_grid_layer0.svg", grid, offset=False)
-write_svg("svg/hex_grid_layer1.svg", grid1)
-write_svg("svg/hex_grid_layer2.svg", grid2)
+write_svg("svg/hex_grid_layer0.svg", grid_bottom, offset=False)
+write_svg("svg/hex_grid_layer1.svg", final_grid_middle)
+write_svg("svg/hex_grid_layer2.svg", final_grid_top)
 # write_svg("svg/hex_grid_layer3.svg", grid3)
+
+final_grid_middle.d3z = board_thickness
+final_grid_top.d3z = board_thickness * 2
+side_z = figure_height_mm - board_thickness*2
+sides = []
+for i in range(6):
+    tmp_side = side.clone()
+    tmp_side.h_h = board_thickness / 2
+    theta, pos = dummyGrid.get_side_info(tmp_side, i, height_fac=1)
+    tmp_side.d3rot = (90, 0, (theta) / math.pi * 180)
+    tmp_side.d3pos = (pos[0], pos[1], side_z)
+    sides.append(tmp_side)
+
+to_openscad("scad/grid.scad", board_thickness, grid_bottom, final_grid_middle, final_grid_top, sides)

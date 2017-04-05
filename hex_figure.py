@@ -29,7 +29,7 @@ ground -= cut
 write_svg("svg/g_plain.svg", ground)
 
 wiggle = .05
-r_laser = 4
+r_laser = 3
 
 # Side board with bumps at top/bottom an laser hole
 
