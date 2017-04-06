@@ -30,3 +30,7 @@ hex_height_pad_mm = math.sqrt(block_r_pad_mm ** 2 - hex_side_len_half ** 2)
 hex_outer_edge_pad = 4 + 8 * block_pad_mm  # ~ 4 is needed for no overlap
 # Size of the hexagonal grid
 grid_r_mm = hex_block_count * hex_height_pad_mm + hex_outer_edge_pad
+
+
+
+side_wiggle = .1  # .1 to add "some space" maybe remove?

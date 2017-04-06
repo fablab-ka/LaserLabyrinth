@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import svgwrite
 from laserbox import *
 from laserbox.export import to_openscad
 
@@ -57,7 +58,7 @@ r_inner = (grid_top.height - board_thickness) / math.cos(math.pi / 6)
 dummyGrid = Ngon(6, r_inner, math.pi * 1 / 6)
 
 wall_h_mm = 80
-side = rect(dummyGrid.side, wall_h_mm)
+side = rect(dummyGrid.side - side_wiggle, wall_h_mm)
 n, w = mm_to_bumps(grid_top.side - 10, 10)
 bumps = tbumps_w(n, w, board_thickness * 3)
 bumps.front = side.back
@@ -77,22 +78,33 @@ for i in range(1, 7):
 
 grid_top -= cut_double
 grid_middle -= cut2
-grid_bottom -= cut2
+final_grid_bottom = grid_bottom -cut2
 # make 2 layers with holes
 final_grid_middle = make_comb_holes(grid_middle, c_small)
 final_grid_top = make_comb_holes(grid_top, c_block)
 #grid3 = make_comb_holes(grid, c_outer)
 
-write_svg("svg/hex_grid_layer0.svg", grid_bottom, offset=False)
+fs = 6
+theta, pos = grid_bottom.get_side_info(rect(10, 10), 5,height_fac=-0.45)
+print(pos)
+t = svgwrite.text.Text("LaserLabyrinth v0.2 ♥ Fablab Ka",insert=(0, pos[1]),text_anchor="middle", style="font-size:%g;font-family:'Arial'"%fs)
+final_grid_bottom.svg_extras.append(t)
+
+
+write_svg("svg/hex_grid_layer0.svg", final_grid_bottom, offset=False)
+exit()
 write_svg("svg/hex_grid_layer1.svg", final_grid_middle)
 write_svg("svg/hex_grid_layer2.svg", final_grid_top)
 # write_svg("svg/hex_grid_layer3.svg", grid3)
 
-final_grid_middle.d3z = board_thickness
-final_grid_top.d3z = board_thickness * 2
-side_z = figure_height_mm - board_thickness*2
+
+# 3D preview
+
+final_grid_middle.d3z = board_thickness * 2
+final_grid_top.d3z = board_thickness * 4
+side_z = figure_height_mm
 sides = []
-for i in range(6):
+for i in range(5):
     tmp_side = side.clone()
     tmp_side.h_h = board_thickness / 2
     theta, pos = dummyGrid.get_side_info(tmp_side, i, height_fac=1)
@@ -100,4 +112,4 @@ for i in range(6):
     tmp_side.d3pos = (pos[0], pos[1], side_z)
     sides.append(tmp_side)
 
-to_openscad("scad/grid.scad", board_thickness, grid_bottom, final_grid_middle, final_grid_top, sides)
+to_openscad("scad/grid.scad", board_thickness, final_grid_bottom, final_grid_middle, final_grid_top, sides)

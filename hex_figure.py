@@ -1,8 +1,10 @@
 import math
 
+import svgwrite
 from laserbox import *
+from laserbox.export import to_openscad
 
-from config import figure_height_mm, figure_r_mm
+from config import figure_height_mm, figure_r_mm, side_wiggle
 
 __author__ = 'Mark Weinreuter'
 
@@ -32,9 +34,8 @@ wiggle = .05
 r_laser = 3
 
 # Side board with bumps at top/bottom an laser hole
-
 bump = tbumps_w(2, b_th + 2, b_th, wo=1.5 + wiggle)  # rect(bump_w - wiggle, b_th)
-side_board = rect(sl_inner - .1, figure_height_mm)  # .1 to add "some space" maybe remove?
+side_board = rect(sl_inner - side_wiggle, figure_height_mm)
 
 bump.back = side_board.front
 side_board += bump
@@ -96,4 +97,21 @@ g_ph1 = ground - con_hole
 g_ph2 = Ngon(6, r_middle) - con_hole
 g_ph3 = Ngon(6, r_small) - con_hole
 con = rect(b_th, 5 * b_th)
+
+
+
 write_svg("svg/place_holder.svg", [g_ph1, g_ph2, g_ph3, con])
+
+# 3D preview
+side_z = figure_height_mm / 2 + b_th
+sides = []
+for i in range(6):
+    tmp_side = h_side.clone() if i % 3 == 0 else side_board.clone()
+    tmp_side.h_h = b_th / 2
+    theta, pos = inner.get_side_info(tmp_side, i, height_fac=1)
+    tmp_side.d3rot = (90, 0, (theta) / math.pi * 180)
+    tmp_side.d3pos = (pos[0], pos[1], side_z)
+    sides.append(tmp_side)
+top = ground.clone()
+top.d3z = figure_height_mm+ b_th * 2
+to_openscad("scad/hex_figure.scad", b_th, ground, top, sides)
