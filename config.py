@@ -2,10 +2,10 @@ import math
 
 __author__ = 'Mark Weinreuter'
 
-board_thickness = 4
+b_th = 3
 
 # block dimensions
-figure_r_mm = 21  # the current gameboard hexagons have a radius of about 43mm
+figure_r_mm = 21.1  # the current gameboard hexagons have a radius of about 43mm
 figure_height_mm = 50
 grid_hole_r_mm = 5
 
