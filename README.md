@@ -1,1 +1,1 @@
-# lasermaze
+# LaserLabyrinth
