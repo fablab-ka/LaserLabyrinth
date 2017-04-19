@@ -90,54 +90,66 @@ y_pos = pos[1]
 bb_w_mm = 80
 bb_d_mm = 50
 bb_h_mm = 40
-conf = BoxConfig(walls=Sides3D(fr=False,to=False))
-b_box = Box(bb_w_mm, bb_d_mm, bb_h_mm, b_th,config=conf)
+conf = BoxConfig(walls=Sides3D(fr=False, to=False))
+b_box = Box(bb_w_mm, bb_d_mm, bb_h_mm, b_th, config=conf)
 bbb_size = 4
-bb_cut = rect(b_th, bbb_size)
+bb_cut = rect(bbb_size, b_th)
 stairs = rect(20, b_th)
-tmp = rect(10,b_th)
+tmp = rect(10, b_th)
 tmp.rightback = stairs.rightfront
 stairs += tmp
-stairs.rightback  = b_box.walls[LEFT].rightback
+stairs.rightback = b_box.walls[LEFT].rightback
 b_box.walls[LEFT] -= stairs
 stairs = rect(20, b_th)
-tmp = rect(10,b_th)
+tmp = rect(10, b_th)
 tmp.leftback = stairs.leftfront
 stairs += tmp
-stairs.leftback= b_box.walls[RIGHT].leftback
+stairs.leftback = b_box.walls[RIGHT].leftback
 b_box.walls[RIGHT] -= stairs
 
 # connection pins
-bb_cut.leftback = b_box.walls[RIGHT].left+10+(10-bbb_size)/2,b_box.walls[RIGHT].back
+bb_cut.leftback = b_box.walls[RIGHT].left + 10 + (10 - bbb_size) / 2, b_box.walls[RIGHT].back
 b_box.walls[RIGHT] += bb_cut
-bb_cut.leftback = b_box.walls[RIGHT].left+(10-bbb_size)/2,b_box.walls[RIGHT].back+b_th
+bb_cut.leftback = b_box.walls[RIGHT].left + (10 - bbb_size) / 2, b_box.walls[RIGHT].back + b_th
 b_box.walls[RIGHT] += bb_cut
 
-bb_cut.rightback = b_box.walls[LEFT].right-10-(10-bbb_size)/2,b_box.walls[RIGHT].back
+bb_cut.rightback = b_box.walls[LEFT].right - 10 - (10 - bbb_size) / 2, b_box.walls[RIGHT].back
 b_box.walls[LEFT] += bb_cut
-bb_cut.rightback = b_box.walls[LEFT].right-(10-bbb_size)/2,b_box.walls[RIGHT].back+b_th
+bb_cut.rightback = b_box.walls[LEFT].right - (10 - bbb_size) / 2, b_box.walls[RIGHT].back + b_th
 b_box.walls[LEFT] += bb_cut
 
 # lidholer
-lh = square_hole(bbb_size + .1,b_th)
+lh = square_hole(bbb_size + .1, b_th)
 lh.rightback = b_box.walls[LEFT].rightfront
 b_box.walls[LEFT] += lh
 
-lh = square_hole(bbb_size + .1,b_th)
+lh = square_hole(bbb_size + .1, b_th)
 lh.leftback = b_box.walls[RIGHT].leftfront
 b_box.walls[RIGHT] += lh
-bb_lid = rect(bb_w_mm, bb_d_mm + b_th)
-bbl_bump = rect(b_th,bbb_size)
+bb_lid = rect(bb_w_mm + 2 * b_th, bb_d_mm + b_th) # + b_th to cover front
+
+# möpple to turn
+bbl_bump = rect(b_th, bbb_size)
+bbl_rem = rect(b_th, bb_lid.h_h * 2 - 3 * lh.w_h)
+
 bbl_bump.right = bb_lid.left
-bbl_bump.y =  bb_lid.front - lh.w_h
+bbl_bump.y = bb_lid.front - lh.w_h
+bbl_rem.rightback = bb_lid.leftback
 bb_lid += bbl_bump
+bb_lid += bbl_rem
+
 bbl_bump.left = bb_lid.right
+bbl_rem.left = bb_lid.right
+
 bb_lid += bbl_bump
-bb_lid.d3z = bb_h_mm/2
+bb_lid += bbl_rem
+
+
+bb_lid.d3z = bb_h_mm / 2
 b_box.extras.append(bb_lid)
 
 # adjust bottom
-bo_off = rect(bb_w_mm*2, 20)
+bo_off = rect(bb_w_mm * 2, 20)
 bo_off.front = b_box.walls[BOTTOM].front
 b_box.walls[BOTTOM] -= bo_off
 b_box.walls[BOTTOM].d3z -= 50
@@ -157,7 +169,7 @@ bb_cut.position = bb_w_mm / 2, -y_pos + 15
 final_grid_middle -= bb_cut
 
 # Add fablab text
-t = svgwrite.text.Text("",insert=(0, y_pos- 3), text_anchor="middle",
+t = svgwrite.text.Text("", insert=(0, y_pos - 3), text_anchor="middle",
                        style="font-size:%g;font-family:'Ubuntu'line-height:1;" % fs)
 
 t.add(svgwrite.text.TSpan("LaserLabyrinth v0.2"))
