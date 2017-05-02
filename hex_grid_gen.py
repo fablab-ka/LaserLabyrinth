@@ -18,6 +18,9 @@ c_block = Ngon(6, figure_r_mm)
 c_small = circle(grid_hole_r_mm, 54)
 c_outer = circle(grid_hole_r_mm * 2, 64)
 
+
+print("Grid info: (height, side, radius)", grid_middle.height, grid_middle.side, grid_middle.r)
+
 parts = ((g_mirror1,) * c_mir) + ((g_mirror2,) * c_mir) + ((g_blocker,) * c_placeholder) + ((g_power,) * c_power) \
         + ((g_start,) * c_start) + ((g_target,) * c_target) + ((g_dual_mirror2,) * c_dual) + (
             (g_dual_mirror1,) * c_dual) +( (g_plain,) * (c_dir_blocker * 2))
@@ -104,6 +107,7 @@ t.add(svgwrite.text.TSpan("LaserLabyrinth v0.2"))
 t.add(svgwrite.text.TSpan("by Fablab Karlsruhe", dx=(2,), style="font-size:3;"))
 final_grid_bottom.svg_extras.append(t)
 
+"""
 # BATTERY BOX
 bb_w_mm = 80
 bb_d_mm = 50
@@ -182,6 +186,8 @@ bb_cut.position = -bb_w_mm / 2, -y_pos + 15
 final_grid_middle -= bb_cut
 bb_cut.position = bb_w_mm / 2, -y_pos + 15
 final_grid_middle -= bb_cut
+"""
+
 
 # 3D preview
 final_grid_middle.d3z = b_th * 2
@@ -208,7 +214,7 @@ if __name__ == "__main__":
     # write_svg("svg/hg_all.svg", all)
 
     # battery holder
-    b_box.export_svg("svg/bbox.svg")
+    #b_box.export_svg("svg/bbox.svg")
 
     # to_openscad("scad/grid.scad", b_th, final_grid_bottom, final_grid_middle, final_grid_top, sides)
     # b_box.preview_openscad("scad/bbox.scad")
