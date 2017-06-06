@@ -3,28 +3,25 @@ import svgwrite
 from laserbox import *
 
 from config import *
-from hex_figure import g_blocker, g_power, g_mirror1, g_dual_mirror2, g_mirror2, g_dual_mirror1, g_plain, g_start, g_target
+from hex_figure import g_placeholder, g_mirror1, g_dual_mirror2, g_mirror2, g_dual_mirror1, g_plain, g_start, g_target, g_tab_holes, plates
 
 __author__ = 'Mark Weinreuter'
 
 # make some template shapes
-g_extra = 10
-grid_top = Ngon(6, grid_r_mm, math.pi * 1 / 6)
-r_middle = (grid_top.height + g_extra) / math.cos(math.pi / 6)
-r_bottom = (grid_top.height + g_extra * 2) / math.cos(math.pi / 6)
-grid_middle = Ngon(6, r_middle, math.pi * 1 / 6)
+g_extra = 5
+grid_top = Ngon(6, grid_r_mm + g_extra, math.pi * 1 / 6)
+grid_cuts = Ngon(6, grid_r_mm, math.pi * 1 / 6)
+r_bottom = (grid_top.height + g_extra) / math.cos(math.pi / 6)
 grid_bottom = Ngon(6, r_bottom, math.pi * 1 / 6)
+grid_shape = Ngon(6, r_bottom, math.pi * 1 / 6)
 c_block = Ngon(6, figure_r_mm)
 c_small = circle(grid_hole_r_mm, 54)
 c_outer = circle(grid_hole_r_mm * 2, 64)
+magnet_r_mm = 2.51
+c_magnet = circle(magnet_r_mm, 20)
 
-
-print("Grid info: (height, side, radius)", grid_middle.height, grid_middle.side, grid_middle.r)
-
-parts = ((g_mirror1,) * c_mir) + ((g_mirror2,) * c_mir) + ((g_blocker,) * c_placeholder) + ((g_power,) * c_power) \
-        + ((g_start,) * c_start) + ((g_target,) * c_target) + ((g_dual_mirror2,) * c_dual) + (
-            (g_dual_mirror1,) * c_dual) +( (g_plain,) * (c_dir_blocker * 2))
-
+print("Grid info: (height, side, radius)", grid_bottom.height, grid_bottom.side, grid_bottom.r)
+parts = plates + [g_plain]* (37-len(plates))
 
 def make_comb_holes(grid, hole_shape):
     """
@@ -69,30 +66,33 @@ def make_comb_holes(grid, hole_shape):
 r_inner = (grid_top.height - b_th) / math.cos(math.pi / 6)
 dummyGrid = Ngon(6, r_inner, math.pi * 1 / 6)
 
-wall_h_mm = 80
+wall_h_mm = figure_height_mm
 grid_side = rect(dummyGrid.side - side_wiggle, wall_h_mm)
 n, w = mm_to_bumps(grid_top.side - 10, 10)
-bumps = tbumps_w(n, w, b_th * 3)
+bumps = tbumps_w(n, w, b_th * 2,wo=.01)
 bumps.front = grid_side.back
 grid_side += bumps
+bumps = tbumps_w(2, w+5, b_th,wo=5)
+bumps.front = grid_side.front
+grid_side -= bumps
+
 
 cut_double = Poly()
 cut2 = Poly()
 for i in range(1, 7):
     # to fix weird edge cases, cut off bigger chucks but only half of them!
-    b1 = grid_top.align_on_side(tbumps_w(n, w, b_th), i, height_fac=-1)
-    b_double = grid_top.align_on_side(tbumps_w(n, w, b_th * 2), i, height_fac=0)
+    b1 = grid_cuts.align_on_side(tbumps_w(n, w, b_th), i, height_fac=-1)
+    b_double = grid_cuts.align_on_side(tbumps_w(n, w, b_th * 2), i, height_fac=0)
     cut_double += b_double
     cut2 += b1
 
-grid_top -= cut_double
-grid_middle -= cut2
-final_grid_bottom = grid_bottom - cut2
+grid_top -= cut2
+grid_bottom = grid_bottom - cut2
 
 # make 2 layers with holes
-final_grid_middle = make_comb_holes(grid_middle, c_small)
 final_grid_top = make_comb_holes(grid_top, parts)
-grid_shadow = make_comb_holes(grid_top, Ngon(6, figure_r_mm))
+grid_shadow = make_comb_holes(grid_shape, g_tab_holes)
+final_grid_bottom = make_comb_holes(grid_bottom, c_magnet)
 # grid3 = make_comb_holes(grid, c_outer)
 
 fs = 6
@@ -105,92 +105,9 @@ t = svgwrite.text.Text("", insert=(0, y_pos - 3), text_anchor="middle",
 
 t.add(svgwrite.text.TSpan("LaserLabyrinth v0.2"))
 t.add(svgwrite.text.TSpan("by Fablab Karlsruhe", dx=(2,), style="font-size:3;"))
-final_grid_bottom.svg_extras.append(t)
-
-"""
-# BATTERY BOX
-bb_w_mm = 80
-bb_d_mm = 50
-bb_h_mm = 40
-conf = BoxConfig(walls=Sides3D(fr=False, to=False))
-b_box = Box(bb_w_mm, bb_d_mm, bb_h_mm, b_th, config=conf)
-bbb_size = 4
-bb_cut = rect(bbb_size, b_th)
-stairs = rect(20, b_th)
-tmp = rect(10, b_th)
-tmp.rightback = stairs.rightfront
-stairs += tmp
-stairs.rightback = b_box.walls[LEFT].rightback
-b_box.walls[LEFT] -= stairs
-stairs = rect(20, b_th)
-tmp = rect(10, b_th)
-tmp.leftback = stairs.leftfront
-stairs += tmp
-stairs.leftback = b_box.walls[RIGHT].leftback
-b_box.walls[RIGHT] -= stairs
-
-# connection pins
-bb_cut.leftback = b_box.walls[RIGHT].left + 10 + (10 - bbb_size) / 2, b_box.walls[RIGHT].back
-b_box.walls[RIGHT] += bb_cut
-bb_cut.leftback = b_box.walls[RIGHT].left + (10 - bbb_size) / 2, b_box.walls[RIGHT].back + b_th
-b_box.walls[RIGHT] += bb_cut
-
-bb_cut.rightback = b_box.walls[LEFT].right - 10 - (10 - bbb_size) / 2, b_box.walls[RIGHT].back
-b_box.walls[LEFT] += bb_cut
-bb_cut.rightback = b_box.walls[LEFT].right - (10 - bbb_size) / 2, b_box.walls[RIGHT].back + b_th
-b_box.walls[LEFT] += bb_cut
-
-# lidholer
-lh = square_hole(bbb_size + .1, b_th)
-lh.rightback = b_box.walls[LEFT].rightfront
-b_box.walls[LEFT] += lh
-
-lh = square_hole(bbb_size + .1, b_th)
-lh.leftback = b_box.walls[RIGHT].leftfront
-b_box.walls[RIGHT] += lh
-bb_lid = rect(bb_w_mm + 2 * b_th, bb_d_mm + b_th)  # + b_th to cover front
-
-# möpple to turn
-bbl_bump = rect(b_th, bbb_size)
-bbl_rem = rect(b_th, bb_lid.h_h * 2 - 3 * lh.w_h)
-
-bbl_bump.right = bb_lid.left
-bbl_bump.y = bb_lid.front - lh.w_h
-bbl_rem.rightback = bb_lid.leftback
-bb_lid += bbl_bump
-bb_lid += bbl_rem
-
-bbl_bump.left = bb_lid.right
-bbl_rem.left = bb_lid.right
-
-bb_lid += bbl_bump
-bb_lid += bbl_rem
-
-bb_lid.d3z = bb_h_mm / 2
-b_box.extras.append(bb_lid)
-
-# adjust bottom
-bo_off = rect(bb_w_mm * 2, 20)
-bo_off.front = b_box.walls[BOTTOM].front
-b_box.walls[BOTTOM] -= bo_off
-b_box.walls[BOTTOM].d3z -= 50
-
-# cut holes to place the battery box
-bb_cut = rect(b_th, bbb_size)
-bb_cut.position = -bb_w_mm / 2, -y_pos + 5
-final_grid_bottom -= bb_cut
-bb_cut.position = bb_w_mm / 2, -y_pos + 5
-final_grid_bottom -= bb_cut
-
-bb_cut.position = -bb_w_mm / 2, -y_pos + 15
-final_grid_middle -= bb_cut
-bb_cut.position = bb_w_mm / 2, -y_pos + 15
-final_grid_middle -= bb_cut
-"""
-
+#final_grid_bottom.svg_extras.append(t)
 
 # 3D preview
-final_grid_middle.d3z = b_th * 2
 final_grid_top.d3z = b_th * 4
 side_z = figure_height_mm
 sides = []
@@ -204,17 +121,16 @@ for i in range(5):
 
 if __name__ == "__main__":
     # grid layers
-    write_svg("svg/hex_grid_layer0.svg", final_grid_bottom, offset=False)
-    write_svg("svg/hex_grid_layer1.svg", final_grid_middle, offset=False)
-    write_svg("svg/hex_grid_layer2.svg", final_grid_top, offset=False)
-    write_svg("svg/hex_grid_shadow.svg", grid_shadow, offset=False)
+    write_svg("svg/hg_bottom.svg", final_grid_bottom, offset=False)
+    write_svg("svg/hg_top.svg", final_grid_top, offset=False)
+    write_svg("svg/hg_shadow.svg", grid_shadow, offset=False)
 
-    # write_svg("svg/hg_wall.svg", side)
+    write_svg("svg/hg_wall.svg", grid_side)
     # all = [final_grid_bottom, final_grid_middle, final_grid_top, side]
     # write_svg("svg/hg_all.svg", all)
 
     # battery holder
-    #b_box.export_svg("svg/bbox.svg")
+    # b_box.export_svg("svg/bbox.svg")
 
     # to_openscad("scad/grid.scad", b_th, final_grid_bottom, final_grid_middle, final_grid_top, sides)
     # b_box.preview_openscad("scad/bbox.scad")

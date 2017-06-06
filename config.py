@@ -2,10 +2,13 @@ import math
 
 __author__ = 'Mark Weinreuter'
 
+flatten = lambda l: [item for sublist in l for item in sublist]
+
+
 b_th = 3
 
 # block dimensions
-figure_r_mm = 21.1  # the current gameboard hexagons have a radius of about 43mm
+figure_r_mm = 25  # the current gameboard hexagons have a radius of about 43mm
 figure_height_mm = 50
 grid_hole_r_mm = 5
 
@@ -31,31 +34,16 @@ hex_outer_edge_pad = 4 + 8 * block_pad_mm  # ~ 4 is needed for no overlap
 # Size of the hexagonal grid
 grid_r_mm = hex_block_count * hex_height_pad_mm + hex_outer_edge_pad
 
-side_wiggle = .1  # .1 to add "some space" maybe remove?
+side_wiggle = 0#.1  # .1 to add "some space" maybe remove?
 
 # Figure counts
 
-c_total = 37
-c_mir = 8
-c_dual = 2
-c_placeholder = 3  # odd, cause total oddness
-c_start = 2
-c_target = 2
-c_power = c_start + c_target
-c_dir_blocker = (c_total - c_mir * 2 - c_dual * 2 - c_placeholder - c_start * 2 - c_target * 2)//2
-c_dir_blocker4 = c_dir_blocker // 2
-c_dir_blocker2 = c_dir_blocker - c_dir_blocker4
-c_total_tall = c_start + c_target
-c_total_small = c_mir + c_dual + c_dir_blocker
-
-# sides
-c_side_hole_tall = c_total_tall
-c_side_tall = c_total_tall * 5
-
-c_side_hole_small = 2 * (c_mir + c_dual + c_dir_blocker2) + 4 * c_dir_blocker4
-c_side_small = 6 * c_total_small - c_side_hole_small
-
-if __name__ == "__main__":
-    print("Figures:", c_total_small, c_total_tall, c_placeholder)
-    print("Sides small: ", c_side_hole_small, c_side_small)
-    print("Sides tall: ", c_side_hole_tall, c_side_tall)
+c_mir1 = 4
+c_mir2 = 4
+c_dmir1 = 2
+c_dmir2 = 2
+c_placeholder = 1  # odd, cause total oddness
+c_start = 1
+c_target = 1
+c_dir_blocker4 = 1
+c_dir_blocker2 = 1
